@@ -164,6 +164,29 @@ void MiSTer_ShowError(const char *message)
 		MH_UI_Message(TITLE, message, MH_UI_WAIT|MH_UI_ERROR);
 }
 
+// OSD options (CONF_STR in core/ECWolf.sv). The first entry of each is 0, the default.
+int MiSTer_MouseSensitivity()
+{
+	static const int percent[16] = { 100, 125, 150, 200, 300, 400, 25, 50, 75, 100, 100, 100, 100, 100, 100, 100 };
+	return percent[MH_OSD_GAME_BITS(MH_OSDStatus(), 24, 4)];
+}
+
+int MiSTer_StickSensitivity()
+{
+	static const int percent[16] = { 100, 125, 150, 200, 300, 25, 50, 75, 100, 100, 100, 100, 100, 100, 100, 100 };
+	return percent[MH_OSD_GAME_BITS(MH_OSDStatus(), 28, 4)];
+}
+
+int MiSTer_GodMode()
+{
+	return MH_OSD_GAME_BITS(MH_OSDStatus(), 35, 1);
+}
+
+int MiSTer_CheatTriggers()
+{
+	return MH_OSDTriggers();
+}
+
 int MiSTer_ExitCode()
 {
 	// The player loaded the core again while the game ran

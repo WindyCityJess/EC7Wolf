@@ -678,9 +678,17 @@ void ApplyMouseMovement(TicCmd_t &cmd, int dx, int dy)
 	}
 	// Keep sub-unit motion: fifty one-count samples must turn as far as one
 	// fifty-count sample. Widen before multiplying even for extreme SDL input.
+#ifdef MISTER_HYBRID
+	// MiSTer (patch_ec7aim.py): Mouse Sensitivity from the core's menu, the remainder kept as below
+	const int64_t divisor100 = int64_t(divisor)*100;
+	const int64_t scaled = int64_t(dx)*20*MiSTer_MouseSensitivity() + remainder;
+	remainder = int(scaled % divisor100);
+	cmd.controlx = int(clamp<int64_t>(int64_t(cmd.controlx) + scaled/divisor100,
+#else
 	const int64_t scaled = int64_t(dx)*20 + remainder;
 	remainder = int(scaled % divisor);
 	cmd.controlx = int(clamp<int64_t>(int64_t(cmd.controlx) + scaled/divisor,
+#endif
 		Command::TURN_MIN, Command::TURN_MAX));
 	if(mouselook)
 	{
@@ -747,6 +755,17 @@ void PollJoystickMove (void)
 				axis >>= 2;
 			else if(control[ConsolePlayer].buttonstate[bt_run])
 				axis <<= 1;
+#ifdef MISTER_HYBRID
+			// MiSTer (patch_ec7aim.py): turning on the stick. A response curve (the axis squared over its value at
+			// full deflection: half the stick turns a quarter as fast, fine aim; full deflection as before) and the
+			// OSD's Stick Sensitivity, as Danik's ecwolf applies it
+			if(!useam && scheme->axis == (int)offsetof(TicCmd_t, controlx))
+			{
+				const int full = 5*JoySensitivity[axisnum].sensitivity*(control[ConsolePlayer].buttonstate[bt_run] ? 2 : 1);
+				if(full > 0) axis = axis*axis/full;
+				axis = axis*MiSTer_StickSensitivity()/100;
+			}
+#endif
 			if(positive ^ (rawaxis < 0))
 				*(int*)((char*)&control[ConsolePlayer] + scheme->axis) += scheme->negative ? -axis : axis;
 		}

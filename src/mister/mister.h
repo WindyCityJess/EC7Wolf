@@ -38,4 +38,13 @@ void MiSTer_ShowError(const char *message);
 // game again (back to the game list) or returns to the MiSTer menu
 int MiSTer_ExitCode();
 
+// The OSD's Cheats page (core/ECWolf.sv): God Mode (bit 35), and the triggers "Give Weapons/Ammo/Keys" (T56) and
+// "Next Level" (T57), bits of MiSTer_CheatTriggers() set once each time the player selects them
+// OSD options Mouse Sensitivity (bits 24..27) and Stick Sensitivity (28..31), in percent (100 = as the game has it)
+int MiSTer_MouseSensitivity();
+int MiSTer_StickSensitivity();
+int MiSTer_GodMode();
+enum { MISTER_CHEAT_GIVEALL = 1, MISTER_CHEAT_NEXTLEVEL = 2 };
+int MiSTer_CheatTriggers();
+
 #endif

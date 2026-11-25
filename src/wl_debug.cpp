@@ -662,12 +662,48 @@ static void DebugGod(bool noah)
 ================
 */
 
+
+#ifdef MISTER_HYBRID
+#include "mister/mister.h"
+// The Cheats page of the core's OSD (core/ECWolf.sv), as Danik's ecwolf has it: God Mode is followed when it
+// changes (the game's own cheat keys can still switch it between), the triggers do their thing once each time.
+static void MiSTerCheats()
+{
+	static int lastGodMode = -1;
+	const int god = MiSTer_GodMode();
+	if(god != lastGodMode)
+	{
+		lastGodMode = god;
+		godmode = god;
+		printf("mister: god mode %s\n", god ? "on" : "off");
+	}
+
+	const int triggers = MiSTer_CheatTriggers();
+	if(triggers & MISTER_CHEAT_GIVEALL)
+	{
+		player_t &player = players[ConsolePlayer];
+		GiveAllWeaponsAndAmmo(player);
+		GiveCorridor7Cheat(player);
+		StatusBar->DrawStatusBar();
+		printf("mister: weapons, ammo and keys given\n");
+	}
+	if(triggers & MISTER_CHEAT_NEXTLEVEL)
+	{
+		playstate = ex_completed;
+		printf("mister: next level\n");
+	}
+}
+#endif
+
 void CheckDebugKeys()
 {
 	static bool DebugOk = false;
 	static bool corridor7CheatHeld = false;
 	if (screenfaded || demoplayback) // don't do anything with a faded screen
 		return;
+#ifdef MISTER_HYBRID
+	MiSTerCheats();
+#endif
 
 	if(IWad::CheckGameFilter("Corridor7"))
 	{
